@@ -8,30 +8,74 @@ import greenfoot.*;
  */
 public class Ant extends Creature
 {
+    private boolean carryingFood;
+    
+    private GreenfootImage image1;
+    
+    private GreenfootImage image2;
+    
     /**
      * Create an ant with a given home hill. The initial speed is zero (not moving).
      */
     public Ant(AntHill home)
     {
         setHomeHill(home);
+        image1 = getImage(); 
+        image2 = new GreenfootImage("ant-with-food.gif");
     }
 
     /**
      * Do what an ant's gotta do.
      */
-    public void act()
+      public void act()
     {
-        randomWalk();
-        testFoodPile(); 
+        status();
         // This currently does not do anything
     }
     
-    private void testFoodPile()
+    private void searchForFood()
+    {
+        randomWalk();
+        checkForFood();
+    }
+    
+    private boolean atHome()
+    {
+        if (getHomeHill() != null) {
+            return (Math.abs(getX() - getHomeHill().getX()) < 4) && 
+                   (Math.abs(getY() - getHomeHill().getY()) < 4);
+        }
+        else {
+            return false;
+        }
+    }
+    
+      private void status()
+    {
+        if (carryingFood == true) 
+        {
+            walkTowardsHome();
+            if(atHome())
+            {
+                setImage(image1);
+                carryingFood = false;
+                getHomeHill().countFood();
+            }
+        }
+        else
+        {
+            searchForFood();
+    }
+   }
+    
+   private void checkForFood()
     {
         Food food = (Food) getOneIntersectingObject(Food.class);
         if (food != null) 
         {
             food.removeCrumb();
+            carryingFood = true;
+            setImage(image2);
         }
     }
 }
