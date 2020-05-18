@@ -14,32 +14,85 @@ public class Ant extends Creature
     
     private GreenfootImage image2;
     
-    /**
+    private final int MAX_PH_AVAILABLE = 16;
+    
+    private final int TIME_FOLLOWING_TRAIL = 30;
+    
+    private int phAvailable = MAX_PH_AVAILABLE;
+    
+    private int followTrialTimeRemaining = 0; 
+    
+   /**
      * Create an ant with a given home hill. The initial speed is zero (not moving).
      */
-    public Ant(AntHill home)
+   public Ant(AntHill home)
     {
         setHomeHill(home);
         image1 = getImage(); 
         image2 = new GreenfootImage("ant-with-food.gif");
     }
 
-    /**
-     * Do what an ant's gotta do.
-     */
-      public void act()
-    {
-        status();
-        // This currently does not do anything
+   private void handlePheromoneDrop()
+   {
+        if(MAX_PH_AVAILABLE == 16)
+        {
+            getWorld().addObject(new Pheromones(), 55, 55);
+        }
+        else 
+        {
+            phAvailable++; 
+        }
     }
     
-    private void searchForFood()
+   private boolean smellsPheromone()
+   {
+       if(isTouching(Pheromones.class))
+       {
+           return true;
+       }
+       else
+       {
+           return false;
+       }
+    }
+    
+   private void walkTowardsPheromoneCenter()
     {
-        randomWalk();
+        Pheromones pheromones = (Pheromones) getOneIntersectingObject(Ant.class);
+        if (pheromones != null) 
+        {
+           headTowards(pheromones);
+        }
+        if(getX() == pheromones.getX() && getY() == pheromones.getY())
+        {
+            followTrialTimeRemaining = TIME_FOLLOWING_TRAIL;
+        }
+    }
+    
+   /**
+     * Do what an ant's gotta do.
+      */
+      public void act()
+    {
+      // This currently does not do anything
+    }
+    
+   private void searchForFood()
+    {
+        if(followTrialTimeRemaining == 0)
+        {
+        walkTowardsPheromoneCenter();// if ants smells a pheromone, walk toward center of the pheromone droplet
+        randomWalk();// otherwise walk around randomly
+        }
+       else
+        {
+        followTrialTimeRemaining--; // decrement time remaining
+        walkAwayFromHome();// walk away from home
+        }
         checkForFood();
     }
     
-    private boolean atHome()
+   private boolean atHome()
     {
         if (getHomeHill() != null) {
             return (Math.abs(getX() - getHomeHill().getX()) < 4) && 
@@ -50,9 +103,9 @@ public class Ant extends Creature
         }
     }
     
-      private void status()
+     private void status()
     {
-        if (carryingFood == true) 
+         if (carryingFood == true) 
         {
             walkTowardsHome();
             if(atHome())
@@ -65,7 +118,7 @@ public class Ant extends Creature
         else
         {
             searchForFood();
-    }
+       }
    }
     
    private void checkForFood()
@@ -77,5 +130,6 @@ public class Ant extends Creature
             carryingFood = true;
             setImage(image2);
         }
+        
     }
 }
