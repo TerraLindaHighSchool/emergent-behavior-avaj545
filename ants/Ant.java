@@ -8,7 +8,7 @@ import greenfoot.*;
  */
 public class Ant extends Creature
 {
-    private boolean carryingFood;
+    private boolean carryingFood = false;
     
     private GreenfootImage image1;
     
@@ -36,7 +36,9 @@ public class Ant extends Creature
    {
         if(MAX_PH_AVAILABLE == 16)
         {
-            getWorld().addObject(new Pheromones(), 55, 55);
+            Pheromones ph = new Pheromones();
+            getWorld().addObject(ph, getX(), getY());
+            phAvailable = 0;
         }
         else 
         {
@@ -58,23 +60,22 @@ public class Ant extends Creature
     
    private void walkTowardsPheromoneCenter()
     {
-        Pheromones pheromones = (Pheromones) getOneIntersectingObject(Ant.class);
+        Pheromones pheromones = (Pheromones) getOneIntersectingObject(Pheromones.class);
         if (pheromones != null) 
         {
-           headTowards(pheromones);
-        }
-        if(getX() == pheromones.getX() && getY() == pheromones.getY())
+        headTowards(pheromones);   
+           if(getX() == pheromones.getX() && getY() == pheromones.getY())
         {
             followTrialTimeRemaining = TIME_FOLLOWING_TRAIL;
         }
     }
-    
+   }
    /**
      * Do what an ant's gotta do.
       */
       public void act()
     {
-      // This currently does not do anything
+      status();// This currently does not do anything
     }
     
    private void searchForFood()
@@ -107,6 +108,7 @@ public class Ant extends Creature
     {
          if (carryingFood == true) 
         {
+            handlePheromoneDrop();
             walkTowardsHome();
             if(atHome())
             {
@@ -126,8 +128,8 @@ public class Ant extends Creature
         Food food = (Food) getOneIntersectingObject(Food.class);
         if (food != null) 
         {
-            food.removeCrumb();
             carryingFood = true;
+            food.removeCrumb();
             setImage(image2);
         }
         

@@ -21,14 +21,12 @@ public class AntWorld extends World
         prepare();
     }
     
-    public void act()
+     public void act()
     {
-        getObjects(Pheromones.class).size();
-        getObjects(Food.class).size( );
-        if(getObjects(Food.class).size() == 0)
-      {
-        Greenfoot.stop();
-      }//
+      if(getObjects(Food.class).size() == 0)
+       {
+         Greenfoot.stop();
+       }
     }
     
     /**
